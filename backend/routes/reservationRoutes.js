@@ -4,12 +4,17 @@ import {
     getAllReservations,
     getReservationById,
     updateReservation,
-    deleteReservation
+    deleteReservation,
+    checkAvailabilityByDate
 } from '../controllers/reservationController.js';
+
+
+
 
 const router = express.Router();
 
 // Reservation management routes
+router.get('/check/availability-by-date', checkAvailabilityByDate);  // GET /api/reservation/check/availability
 router.post('/', createReservation);        // POST /api/reservation
 router.get('/', getAllReservations);        // GET /api/reservation
 router.get('/:id', getReservationById);        // GET /api/reservation/:id

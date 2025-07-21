@@ -9,17 +9,12 @@ const reservationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Facility'
     },
-    slot_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'TimeSlot'
-    },
-    res_date: {
+    start: {
         type: Date,
         required: true
     },
-    total_cost: {
-        type: Number,
-        required: true
+    eventType: {
+        type: String,
     },
     status: {
         type: String,

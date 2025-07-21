@@ -15,6 +15,8 @@ import membershipRoutes from './routes/membershipRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+
 
 dotenv.config();
 
@@ -26,6 +28,12 @@ app.use(cors());
 app.use(express.json()); //parses incoming requests
 
 //Routes
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.originalUrl}`);
+  next();
+});
+
+app.use('/api/auth', authRoutes);               // /api/auth/login
 app.use('/api/users', userRoutes);              //all routes are prefixed with /api/users
 app.use('/api/facility', facilityRoutes);       //all routes are prefixed with /api/facility
 app.use('/api/timeslots', timeSlotRoutes)       //all routes are prefixed with /api/timeslots
