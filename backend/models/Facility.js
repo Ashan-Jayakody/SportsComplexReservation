@@ -5,13 +5,11 @@ const facilitySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    location: {
-        type: String,
-        required: true
+    image: {
+        type: String
     },
-    is_available: {
-        type: Boolean,
-        required: true
+    description: {
+        type: String
     }
 });
 

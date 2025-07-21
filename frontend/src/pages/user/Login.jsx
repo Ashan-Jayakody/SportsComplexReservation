@@ -20,6 +20,10 @@ export default function Login() {
         "http://localhost:5000/api/auth/login",
         formData
       );
+
+      //store the token
+      localStorage.setItem("token", res.data.token);
+
       Swal.fire("Success!", res.data.message, "success");
 
       navigate("/"); //redirect after login

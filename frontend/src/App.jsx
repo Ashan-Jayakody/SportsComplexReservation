@@ -9,6 +9,8 @@ import Home from './pages/user/Home';
 import MembershipRegister from './pages/user/MembershipReg';
 import Createaccount from './pages/user/CreateAccount';
 import Login from './pages/user/Login';
+import Footer from './components/user/footer';
+import Booking from './pages/user/Booking';
 
 
 
@@ -25,8 +27,11 @@ function App() {
         <Route path= "/membershipReg" element={<MembershipRegister/>}/>
         <Route path= "/createAccount" element={<Createaccount/>}/>
         <Route path= "/login" element={<Login/>}/>
+        <Route path= "/booking" element={<Booking/>}/>
+       
       </Routes>
       {/*footer appears on all pages */}
+      <Footer/>
     </BrowserRouter>
   
   );

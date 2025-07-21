@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import sport1 from "../../assets/sport1.jpg";
 import sport2 from "../../assets/sport2.jpg";
@@ -15,6 +15,7 @@ const images = [sport1, sport2, sport3, sport6, sport5];
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,6 +23,19 @@ export default function Hero() {
     }, 5000); //this change image every 3 s
     return () => clearInterval(interval);
   }, []);
+
+  //handling the navigation of the Booking button
+  const handleBookClick = () => {
+    const token = localStorage.getItem("token");
+
+    if (token){ //user logged in
+        navigate("/booking");
+
+    }else{  //not logged in
+        navigate("/login");
+    }
+};
+
 
   return (
     <section
@@ -39,12 +53,12 @@ export default function Hero() {
           Book your favourite sports facilities and join the action today.
         </p>
         <div className="flex gap-4">
-          <Link
-            to="/dashboard"
+          <button
+            onClick={handleBookClick}
             className="inline-block bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded-md text-lg font-bold transition"
           >
             Book Now
-          </Link>
+          </button>
 
           <Link
             to="/membershipReg"
@@ -57,17 +71,17 @@ export default function Hero() {
 
       {/*floating infomation cards */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2  translate-y-1/2 z-30 flex flex-col md:flex-row gap-4">
-        <div className="bg-white/90 text-black p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-grey-200">
+        <div className="bg-zinc-900 text-white p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-red-700">
           <h3 className="font-semibold text-lg mb-1">⚽Book Courts</h3>
           <p className="text-sm">
             Reserve indoor and outdoor arenas in seconds.
           </p>
         </div>
-        <div className="bg-white/90 text-black p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-grey-200">
+        <div className="bg-zinc-900 text-white p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-red-700">
           <h3 className="font-semibold text-lg mb-1">📅Manage Bookings</h3>
           <p className="text-sm">Track and update your reservations easily.</p>
         </div>
-        <div className="bg-white/90 text-black p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-grey-200">
+        <div className="bg-zinc-900 text-white p-4 rounded-xl shadow-lg w72 backdrop-blur-sm border border-red-700">
           <h3 className="font-semibold text-lg mb-1">💳Easy payments</h3>
           <p className="text-sm">
             Pay securely and instantly confirm your slots.
