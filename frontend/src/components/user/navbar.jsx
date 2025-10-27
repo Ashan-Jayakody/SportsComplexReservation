@@ -6,6 +6,7 @@ import { Dropdown } from "antd";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -25,6 +26,15 @@ export default function Navbar() {
     setIsLoggedIn(!!token);
   }, [location]);
 
+  // Load user data from storage when component mounts
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserName(user.fname); // Get the first name
+    }
+  }, []);
+
   //close the dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -37,9 +47,11 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('user');
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setDropdownOpen(false);
+    setUserName(null);
     navigate("/login");  // this redirect to the login page
   }
 
@@ -77,6 +89,7 @@ export default function Navbar() {
               className="h-9 w-9 text-white cursor-pointer hover:text-red-500"
               onClick={() => setDropdownOpen(!dropdownOpen)}
               />
+              
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-lg shadow-lg z-50">
@@ -93,8 +106,10 @@ export default function Navbar() {
                   >
                     Logout
                   </button>
+                 
                 </div>
-              )}
+                 
+              )}<span className="user-name">{userName}</span>
             </div>
           )}
         </div>

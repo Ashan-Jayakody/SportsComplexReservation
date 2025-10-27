@@ -23,10 +23,20 @@ export default function Login() {
 
       //store the token
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.user.role);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      console.log("Login response:", res.data);
 
       Swal.fire("Success!", res.data.message, "success");
 
-      navigate("/"); //redirect after login
+
+      // Redirect based on role
+      if (res.data.user.role === "admin") {
+        navigate("/admin")
+      }else {
+        navigate("/");
+      }
     } catch (err) {
       Swal.fire(
         "Error!",

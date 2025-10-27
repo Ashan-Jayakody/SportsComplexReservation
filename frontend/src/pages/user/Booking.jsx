@@ -23,7 +23,8 @@ export default function Booking() {
   const [eventType, setEventType] = useState("");
   const [date, setDate] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [myReservations, setMyReservations] = useState([]);
   const [editingReservationId, setEditingReservationId] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -75,6 +76,11 @@ export default function Booking() {
     };
     fetchFacilities();
     fetchMyReservations();
+    
+    // Auto-refresh reservations every 30 seconds to get status updates
+    const interval = setInterval(fetchMyReservations, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchBookedSlots = async (facilityId, selectedDate) => {
@@ -95,52 +101,85 @@ export default function Booking() {
       Swal.fire("Error", "Could not fetch booked slots", "error");
     }
   };
+const fetchMyReservations = async () => {
+  const token = localStorage.getItem("token");
+  
+  if (!token) {
+    console.log("No token, cannot fetch reservations.");
+    return;
+  }
 
-  const fetchMyReservations = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  try {
+   //config object
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-    try {
-      const res = await axios.get("http://localhost:5000/api/reservation", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMyReservations(res.data);
-    } catch (err) {
-      console.error("Failed to Fetch reservations", err);
-    }
-  };
+    //Make the request WITH the config  , filter and send only this users reservations
+    const res = await axios.get("http://localhost:5000/api/reservation", config);
 
-  useEffect(() => {
+    console.log("My reservations:", res.data);
+    setMyReservations(res.data);
+
+  } catch (err) {
+    console.error("Failed to Fetch reservations", err);
+  }
+};
+
+useEffect(() => { //for available slots
     if (selectedFacility && date) {
       fetchBookedSlots(selectedFacility._id, date);
     }
   }, [selectedFacility, date]);
 
+  useEffect(() => { // for reservations
+    fetchMyReservations();
+  }, []); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
+    console.log("=== RESERVATION SUBMISSION ===");
+    console.log("Token exists:", !!token);
+    console.log("User:", user);
+    console.log("Selected facility:", selectedFacility);
+    console.log("Event type:", eventType);
+    console.log("Date:", date);
+   
+
     if (!token) {
       Swal.fire("Login Required", "Please login to book", "warning");
       navigate("/login");
       return;
     }
 
-    if (!selectedFacility || !eventType || !date || !selectedSlot) {
+    if (!selectedFacility || !eventType || !date || !startTime || !endTime) {
       Swal.fire("Incomplete", "Please complete all fields", "info");
       return;
     }
 
-    const startTime = `${date}T${selectedSlot}:00`;
-    const endHour = parseInt(selectedSlot) + 1;
-    const endTime = `${date}T${endHour.toString().padStart(2, "0")}:00`;
+    const reservationStart = `${date}T${startTime}:00`;
+    const reservationEnd = `${date}T${endTime}:00`;
 
+    console.log("Start time:", reservationStart);
+    console.log("End time:", reservationEnd);
+ 
     try {
       const formData = new FormData();
       formData.append("facility_id", selectedFacility._id);
       formData.append("eventType", eventType);
-      formData.append("start", startTime);
-      formData.append("end", endTime);
+      formData.append("start", reservationStart);
+      formData.append("end", reservationEnd); 
+      if (slip) {
+        formData.append("slip", slip);
+      }
+
+      console.log("Form data prepared");
 
       const config = {
         headers: {
@@ -149,40 +188,54 @@ export default function Booking() {
         },
       };
 
+      console.log("Making POST request to create reservation...");
+
       if (editingReservationId) {
         //update reservation
-        await axios.put(
+        const response = await axios.put(
           `http://localhost:5000/api/reservation/${editingReservationId}`,
           formData,
           config
         );
+        console.log("Update response:", response.data);
         Swal.fire("Updated!", "Reservation updated successfully", "success");
       } else {
         //create new reservation
-        await axios.post(
+        const response = await axios.post(
           "http://localhost:5000/api/reservation",
           formData,
           config
         );
+        console.log("Create response:", response.data);
         Swal.fire("Success!", "Reservation added successfully", "success");
-        navigate("/my-reservations");
       }
 
       // Reset form
       setSelectedFacility(null);
       setEventType("");
       setDate("");
-      setSelectedSlot("");
+      setStartTime(""); 
+      setEndTime("");
       setSlip(null);
       setEditingReservationId(null);
+      
+      // Refresh reservations
       fetchMyReservations();
-      navigate("/my-reservations");
+      
+      // Navigate to reservations page
+      navigate("/booking");
+      
     } catch (err) {
-      Swal.fire(
-        "Error",
-        err.response?.data?.message || "Booking Failed",
-        "error"
-      );
+      console.error("Reservation creation failed:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          err.message || 
+                          "Booking Failed";
+      
+      Swal.fire("Error", errorMessage, "error");
     }
   };
 
@@ -260,7 +313,7 @@ export default function Booking() {
                 );
                 setSelectedFacility(selected);
                 setBookedSlots([]);
-                setSelectedSlot("");
+                
               }}
             >
               <option value="">--Select Facility--</option>
@@ -299,41 +352,95 @@ export default function Booking() {
               onChange={(e) => {
                 setDate(e.target.value);
                 setBookedSlots([]);
-                setSelectedSlot("");
+              
               }}
             />
           </div>
 
-          {/* Time Slot Picker */}
-          <div>
-            <label className="block text-red-200 mb-2">
-              Select a Time Slot:
-            </label>
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {HOURS.map((hour) => {
-                const hourStr = hour.toString().padStart(2, "0") + ":00";
-                const isBooked = bookedSlots.includes(hourStr);
-                const isSelected = selectedSlot === hourStr;
+{/* Time Slot Pickers */}
+<div className="grid grid-cols-2 gap-4 mb-6">
+  {/* --- Start Time Dropdown --- */}
+  <div>
+    <label htmlFor="start-time" className="block text-red-200 mb-2">
+      Start Time
+    </label>
+    <select
+      id="start-time"
+      value={startTime}
+      onChange={(e) => {
+        setStartTime(e.target.value);
+        setEndTime(""); // Reset end time when start time changes
+      }}
+      required
+      className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+    >
+      <option value="" disabled>Select start time</option>
+      {HOURS.map((hour) => {
+        const hourStr = hour.toString().padStart(2, "0") + ":00";
+        const isBooked = bookedSlots.includes(hourStr);
+        return (
+          <option key={hourStr} value={hourStr} disabled={isBooked}>
+            {hourStr} {isBooked ? "(Booked)" : ""}
+          </option>
+        );
+      })}
+    </select>
+  </div>
 
-                return (
-                  <button
-                    type="button"
-                    key={hourStr}
-                    className={`py-2 rounded-lg text-sm font-semibold transition-colors duration-300${
-                      isBooked
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : isSelected
-                        ? "bg-red-600 text-white shadow-md shadow-red-500/40"
-                        : "bg-zinc-800 text-white hover:bg-red-500 hover:text-white"
-                    }`}
-                    disabled={isBooked}
-                    onClick={() => setSelectedSlot(hourStr)}
-                  >
-                    {hourStr} - {(hour + 1).toString().padStart(2, "0")}:00
-                  </button>
-                );
-              })}
-            </div>
+  {/* --- End Time Dropdown --- */}
+  <div>
+    <label htmlFor="end-time" className="block text-red-200 mb-2">
+      End Time
+    </label>
+    <select
+      id="end-time"
+      value={endTime}
+      onChange={(e) => setEndTime(e.target.value)}
+      disabled={!startTime} // Disable until start time is selected
+      required
+      className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+    >
+      <option value="" disabled>Select end time</option>
+      {HOURS.map((hour) => {
+        // End time is +1 hour, so we map hours 9-23
+        const endHourStr = (hour + 1).toString().padStart(2, "0") + ":00";
+        
+        // Only show end times that are *after* the selected start time
+        if (parseInt(hour) < parseInt(startTime)) {
+          return null;
+        }
+
+        // Check if any slot *between* start and end is booked
+        let isSlotInbetweenBooked = false;
+        for (let i = parseInt(startTime); i <= hour; i++) {
+          const slotToCheck = i.toString().padStart(2, "0") + ":00";
+          if (bookedSlots.includes(slotToCheck)) {
+            isSlotInbetweenBooked = true;
+            break;
+          }
+        }
+
+        return (
+          <option key={endHourStr} value={endHourStr} disabled={isSlotInbetweenBooked}>
+            {endHourStr} {isSlotInbetweenBooked ? "(Slot unavailable)" : ""}
+          </option>
+        );
+      })}
+    </select>
+  </div>
+</div>
+
+          {/* Payment slip uploading */}
+          <div>
+            <label className="block text-red-200 mb-1">Upload payment Slip:</label>
+            <input
+              type="file"
+              name="slip"
+              accept="image/*, application/pdf"
+              onChange={(e) => setSlip(e.target.files[0])}
+              className="w-full mb-4 px-4 py-2 rounded-lg bg-zinc-900 text-white border border-red-600 focus:outline-none focus:ring-1 focus:ring-red-500"
+              required
+            />
           </div>
 
           <button
@@ -397,15 +504,26 @@ export default function Booking() {
                     <td className="p-3 py-6 px-4 whitespace-nowrap text-sm text-gray-600 flex gap-3">
                       <button
                         onClick={() => handleEdit(res)}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Edit"
+                        disabled = {res.status !== 'pending'}
+                        className={
+                          res.status !== 'pending'
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-blue-600 hover:text-blue-800'
+                        }
+                        title={res.status !== 'pending' ? 'Cannot edit a ' + res.status + ' reservation' : 'Edit'}
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDelete(res._id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete"
+                        disabled={res.status !== 'pending'}
+                        className={
+                          res.status !== 'pending'
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-red-600 hover:text-red-800'
+                        }
+                         
+                        title={res.status !== 'pending' ? 'Cannot cancel a ' + res.status + ' reservation' : 'Cancel'}
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>

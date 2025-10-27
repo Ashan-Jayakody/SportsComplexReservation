@@ -16,9 +16,14 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -26,6 +31,7 @@ const port = process.env.PORT || 5000;
 //Middleware
 app.use(cors());
 app.use(express.json()); //parses incoming requests
+app.use(express.urlencoded({ extended: true }));
 
 //Routes
 app.use((req, res, next) => {
@@ -43,6 +49,8 @@ app.use('/api/membership', membershipRoutes)    //all routes are prefixed with /
 app.use('/api/payment', paymentRoutes)          //all routes are prefixed with /api/payment
 app.use('/api/event', eventRoutes)              //all routes are prefixed with /api/event
 app.use('/api/eventapply', applicationRoutes) //all routes are prefixed with /api/eventapply
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 //MongoDB connection
 const startServer = async () =>{
     try{
