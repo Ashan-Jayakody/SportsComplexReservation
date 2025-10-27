@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 // @route POST /api/users
 export const createUser = async (req, res) => {
   try {
-    const { fname, lname, email, password } = req.body;
+    const { fname, lname, email, password, role } = req.body;
 
     // Validate required fields
     if (!fname || !lname || !email || !password) {
@@ -29,6 +29,7 @@ export const createUser = async (req, res) => {
       lname,
       email,
       password: hashedPassword,
+      role: role || 'user'
     });
 
     await newUser.save();
