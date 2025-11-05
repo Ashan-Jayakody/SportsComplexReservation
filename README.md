@@ -24,6 +24,16 @@ This system includes **user** and **admin** dashboards, providing a smooth booki
 
 ---
 
+<p align="center">
+  <img src="./screenshots/home.png" alt="Homepage" width="600"/>
+  
+  <img src="./screenshots/admin2.png" alt="Homepage" width="600"/>
+  
+  <img src="./screenshots/make reservation.png" alt="Homepage" width="600"/>
+</p>
+
+---
+
 ## 🧩 Tech Stack
 
 | Layer | Technology |
