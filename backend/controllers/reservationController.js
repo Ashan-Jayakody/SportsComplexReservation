@@ -82,7 +82,9 @@ export const updateReservation = async (req, res) => {
       return res.status(404).json({ error: "Reservation not found" });
     }
 
-    if (reservation.user_id.toString() !== req.user._id) {
+    if (reservation.user_id.toString() !== req.user._id.toString() &&
+        req.user.role !== "admin" 
+      ) {
       return res
         .status(403)
         .json({ error: "Not authorized to edit this reservation." });
@@ -151,7 +153,7 @@ export const deleteReservation = async (req, res) => {
       return res.status(404).json({ error: "Reservation not found" });
     }
     if (
-      reservation.user_id.toString() !== req.user._id &&
+      reservation.user_id.toString() !== req.user._id.toString() &&
       req.user.role !== "admin"
     ) {
       return res

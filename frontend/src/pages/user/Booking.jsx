@@ -230,12 +230,21 @@ useEffect(() => { //for available slots
       console.error("Error response:", err.response?.data);
       console.error("Error status:", err.response?.status);
       
+      const errorCode = err.response?.data?.error;
       const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
                           err.message || 
                           "Booking Failed";
       
-      Swal.fire("Error", errorMessage, "error");
+      // Handle token expiration
+      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || errorCode === 'TOKEN_VERIFICATION_FAILED') {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        Swal.fire("Session Expired", "Your session has expired. Please login again.", "warning").then(() => {
+          navigate("/login");
+        });
+      } else {
+        Swal.fire("Error", errorMessage, "error");
+      }
     }
   };
 
