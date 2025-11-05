@@ -5,17 +5,25 @@ const membershipSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    pkg_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'MemPkg'
+    pkg: {
+        type: String,
+        required: true
     },
-    start_date: {
+    email: {
+        type: String,
+        required: true
+    },
+    reg_date: {
         type: Date,
         required: true
     },
-    payment_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Payment'
+    NIC: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
     },
     status: {
         type: String,

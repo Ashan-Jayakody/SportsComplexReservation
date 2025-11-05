@@ -7,8 +7,9 @@ export default function AdminLayout() {
     return(
         <div className="min-h-screen bg-gray-100">
             {/* Top Navigation Bar */}
-            <div className="fixed top-0 left-0 right-0 z-40 bg-red-700/90 shadow-lg">
+            <div className="fixed top-0 left-0 right-0 z-40 bg-zinc-800 shadow-lg">
                 <Topbar/>
+                
             </div>
             
             {/* Main Content Area */}

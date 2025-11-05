@@ -7,6 +7,7 @@ export default function Topbar() {
     return(
         
             <div className="flex items-center gap-6 w-full h-20 px-8">
+                <span className='text-white font-semibold text-2xl '>Sports Complex Admin</span>
                 <div className="ml-auto flex items-center gap-6">
                     <Input 
                         placeholder="Search..."

@@ -2,12 +2,30 @@ import Membership from "../models/Membership.js";
 
 // @desc Create a Membership
 // @Route POST /api/membership
+// @Uses protect middleware, so req.user is already set
 export const createMembership = async (req, res) => {
-    try{
-        const newMembership = await Membership.create(req.body);
-        res.status(201).json(newMembership);
-    }catch (err) {
-        res.status(500).json({error: err.message});
+    try {
+        // req.user is set by the protect middleware
+        const userId = req.user._id;
+        const newMembership = await Membership.create({
+            ...req.body,
+            user_id: userId 
+        });
+        
+        console.log("Membership created successfully:", newMembership);
+        return res.status(201).json(newMembership);
+    } catch (err) {
+        console.error("Error creating membership:", err);
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ 
+                error: err.message,
+                message: "Validation error. Please check your input."
+            });
+        }
+        return res.status(500).json({ 
+            error: "Internal Server Error during database save.",
+            message: err.message 
+        });
     }
 };
 
@@ -15,7 +33,7 @@ export const createMembership = async (req, res) => {
 // @Route GET /api/membership
 export const getAllMemberships = async (req, res) => {
     try{
-        const memberships = await Membership.find();
+        const memberships = await Membership.find().populate("user_id", "fname lname email role");
         res.json(memberships);
     }catch (err) {
         res.status(500).json({error: err.message});

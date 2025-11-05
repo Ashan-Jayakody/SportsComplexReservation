@@ -17,9 +17,6 @@ const Sidebar = () => {
 
     return (
         <div className='w-full bg-white rounded-lg shadow-lg'>
-            <div className='flex items-center justify-center h-16 bg-zinc-700 rounded-t-lg'>
-                <span className='text-white font-semibold text-lg'>Sports Complex Admin</span>
-            </div>
 
             <div className='h-full overflow-y-auto'>
                 <nav className='px-2 py-4'>
@@ -30,8 +27,8 @@ const Sidebar = () => {
                             className={({isActive}) =>
                                 `group flex items-center px-4 py-4 text-sm my-3 font-medium rounded-md ${
                                     isActive
-                                        ? 'bg-indigo-500 text-indigo-700'
-                                        : 'text-black hover:bg-red-200 hover:text-zinc-700'
+                                        ? 'bg-red-600  text-white '
+                                        : 'text-black hover:bg-zinc-200 hover:text-zinc-700'
                                 }`
                             }>
                                 {({isActive}) => (
@@ -39,7 +36,7 @@ const Sidebar = () => {
                                         <item.icon
                                               className={`mr-4 h-5 w-5 flex-shrink-0 ${
                                                 isActive
-                                                    ? 'text-indigo-500'
+                                                    ? 'text-white'
                                                     : 'text-red-700 group-hover:text-red-600'
                                                 }`}
                                         />
