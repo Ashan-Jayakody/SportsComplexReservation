@@ -63,3 +63,15 @@ cd ../frontend
 npm install
 npm run dev
 ```
+---
+🤝 Contribution
+
+We welcome contributions to improve this project.
+
+- Fork the repository.
+- Clone your forked repository to your local machine.
+- Create a new branch for your feature or fix.
+- Make your changes and test them.
+- Commit your changes with a clear message.
+- Push your branch to your forked repository.
+- Open a pull request and describe your changes.
