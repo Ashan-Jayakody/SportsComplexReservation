@@ -1,4 +1,9 @@
 # SportsComplexReservation
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
+
 # Sports Complex Reservation System (MERN Stack)
 
 A full-stack **MERN** (MongoDB, Express.js, React.js, Node.js) web application for managing sports facility reservations and memberships.  
