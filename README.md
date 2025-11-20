@@ -78,6 +78,8 @@ cd ../frontend
 npm install
 npm run dev
 ```
+> [ ! Note ]
+> Configuration of the Tailwind CSS => https://tailwindcss.com/docs/installation/using-vite
 ---
 🤝 Contribution
 
